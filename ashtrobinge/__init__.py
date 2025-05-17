@@ -15,6 +15,7 @@ def hello_binge():
 def download(survey='Gaia', target=None, coords=None, radius=1.0):
     """
     Download data from a specified astronomical survey.
+    Currently only supports Gaia.
 
     Parameters:
         survey (str): Survey name (currently only 'Gaia' supported)
@@ -27,21 +28,25 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
     """
     try:
         from astroquery.gaia import Gaia
+        from astropy.coordinates import SkyCoord
+        import astropy.units as u
     except ImportError:
-        print("astroquery not installed. Please pip install astroquery.")
+        print("astroquery/astropy not installed. Please pip install astroquery astropy.")
         return None
 
     if survey.lower() == 'gaia':
         if target:
             print(f"[Ashtrobinge] Binging Gaia stars around '{target}' (radius: {radius} deg)...")
-            job = Gaia.cone_search_async(target, radius)
+            coord = SkyCoord.from_name(target)
+            job = Gaia.cone_search_async(coord, radius * u.deg)
             result = job.get_results()
             print(f"[Ashtrobinge] Downloaded {len(result)} stars near {target}. Data secured.")
             return result
         elif coords:
             ra, dec = coords
+            coord = SkyCoord(ra, dec, unit='deg')
             print(f"[Ashtrobinge] Binging Gaia stars at RA={ra}, Dec={dec} (radius: {radius} deg)...")
-            job = Gaia.cone_search_async(f"{ra} {dec}", radius)
+            job = Gaia.cone_search_async(coord, radius * u.deg)
             result = job.get_results()
             print(f"[Ashtrobinge] Downloaded {len(result)} stars at coordinates. Data secured.")
             return result
