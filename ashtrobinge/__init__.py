@@ -1,6 +1,5 @@
 """
 Ashtrobinge: A meme-powered, ultra-fast astro data wrangling toolkit.
-
 Built by Ash, powered by caffeine and questionable decisions.
 """
 
@@ -8,55 +7,106 @@ __version__ = "0.1.0"
 __author__ = "Ash"
 
 def hello_binge():
-    """
-    Print a welcome message from Ashtrobinge.
-    """
     print("🚀 Welcome to Ashtrobinge! Ready to binge the cosmos and roast your data? Let’s goon.")
 
-# Example core skeleton for future features
+# Download function (real or placeholder)
+def download(survey='Gaia', target=None, coords=None, radius=1.0):
+    try:
+        from astroquery.gaia import Gaia
+    except ImportError:
+        print("astroquery not installed. Please pip install astroquery.")
+        return None
 
-def download(survey, target=None, coords=None, radius=1.0):
-    """
-    (Placeholder) Download data from a specified astronomical survey.
+    if survey.lower() == 'gaia':
+        if target:
+            print(f"[Ashtrobinge] Binging Gaia stars around '{target}' (radius: {radius} deg)...")
+            job = Gaia.cone_search_async(target, radius)
+            result = job.get_results()
+            print(f"[Ashtrobinge] Downloaded {len(result)} stars near {target}. Data secured.")
+            return result
+        elif coords:
+            ra, dec = coords
+            print(f"[Ashtrobinge] Binging Gaia stars at RA={ra}, Dec={dec} (radius: {radius} deg)...")
+            job = Gaia.cone_search_async(f"{ra} {dec}", radius)
+            result = job.get_results()
+            print(f"[Ashtrobinge] Downloaded {len(result)} stars at coordinates. Data secured.")
+            return result
+        else:
+            print("Please provide a target name or coordinates.")
+            return None
+    else:
+        print("Currently only Gaia is supported in this demo.")
+        return None
 
-    Parameters:
-        survey (str): The survey name (e.g., 'Gaia', 'SDSS')
-        target (str, optional): Object name (e.g., 'M31')
-        coords (tuple, optional): (RA, Dec) in degrees
-        radius (float): Search radius in arcmin or deg
+def clean(data, dropna=True):
+    try:
+        import pandas as pd
+    except ImportError:
+        print("pandas not installed. Please pip install pandas.")
+        return data
 
-    Returns:
-        dict: Placeholder for fetched data.
-    """
-    print(f"[Ashtrobinge] Attempting to binge '{survey}' data for target: {target or coords or 'the void'} ...")
-    # TODO: Implement real download using astroquery or other APIs
-    return {"survey": survey, "target": target, "coords": coords, "radius": radius, "data": None}
+    print("[Ashtrobinge] Cleaning data... Don’t let those NaNs ruin your binge.")
+    if hasattr(data, "to_pandas"):
+        df = data.to_pandas()
+    elif isinstance(data, pd.DataFrame):
+        df = data.copy()
+    else:
+        print("Input must be astropy Table or pandas DataFrame.")
+        return data
 
-def clean(data):
-    """
-    (Placeholder) Clean and preprocess data.
+    if dropna:
+        df = df.dropna()
+    return df
 
-    Parameters:
-        data (dict): Data to be cleaned.
+def plot(plot_type, data, x=None, y=None):
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("matplotlib not installed. Please pip install matplotlib.")
+        return
 
-    Returns:
-        dict: Cleaned data (still just a placeholder).
-    """
-    print("[Ashtrobinge] Cleaning up your cosmic mess... 🔥")
-    # TODO: Implement real cleaning logic (drop NaNs, fix units, etc.)
-    return data
+    if plot_type.lower() == 'cmd':
+        if 'bp_rp' in data and 'phot_g_mean_mag' in data:
+            plt.figure(figsize=(6,8))
+            plt.scatter(data['bp_rp'], data['phot_g_mean_mag'], s=1, alpha=0.5, color='blue')
+            plt.gca().invert_yaxis()
+            plt.xlabel('BP - RP')
+            plt.ylabel('G mag')
+            plt.title('Color-Magnitude Diagram (CMD)')
+            plt.show()
+        else:
+            print("Data must have 'bp_rp' and 'phot_g_mean_mag' columns for CMD.")
+    elif plot_type.lower() == 'scatter' and x and y:
+        plt.figure(figsize=(6,4))
+        plt.scatter(data[x], data[y], s=5, alpha=0.6, color='navy')
+        plt.xlabel(x)
+        plt.ylabel(y)
+        plt.title(f"{x} vs {y}")
+        plt.show()
+    else:
+        print("Plot type not recognized or insufficient data/arguments.")
 
-def plot(plot_type, data=None):
-    """
-    (Placeholder) Plot the requested data.
+def meme_log(level='info'):
+    import random
+    messages = {
+        'info': [
+            "Still binging, still winning.",
+            "Science is pain, but you like it.",
+            "Achievement unlocked: Data hoarder.",
+            "If this crashes, it's probably your fault (JK)."
+        ],
+        'success': [
+            "You did it. Nobel soon?",
+            "Science flex complete.",
+            "Big W for the goon squad.",
+            "Your ancestors are proud."
+        ],
+        'fail': [
+            "Bruh. Try again.",
+            "404: Science not found.",
+            "Data left the chat.",
+            "This ain't it, chief."
+        ]
+    }
+    print(random.choice(messages.get(level, messages['info'])))
 
-    Parameters:
-        plot_type (str): Type of plot (e.g., 'CMD', 'scatter')
-        data (dict, optional): Data to plot.
-
-    Returns:
-        None
-    """
-    print(f"[Ashtrobinge] Plotting '{plot_type}'. Hope you brought popcorn 🍿")
-    # TODO: Implement real plotting (matplotlib/plotly/etc.)
-    return None
