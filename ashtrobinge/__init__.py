@@ -7,24 +7,11 @@ __version__ = "0.1.0"
 __author__ = "Ash"
 
 def hello_binge():
-    """
-    Print a meme-powered welcome message.
-    """
     print("🚀 Welcome to Ashtrobinge! Ready to binge the cosmos and roast your data? Let’s goon.")
 
 def download(survey='Gaia', target=None, coords=None, radius=1.0):
     """
-    Download data from a specified astronomical survey.
-    Currently only supports Gaia.
-
-    Parameters:
-        survey (str): Survey name (currently only 'Gaia' supported)
-        target (str, optional): Object name (e.g., 'M31')
-        coords (tuple, optional): (RA, Dec) in degrees
-        radius (float): Search radius in degrees
-
-    Returns:
-        astropy Table: Result of the query (or None if error)
+    Download data from Gaia with astroquery (fixed version).
     """
     try:
         from astroquery.gaia import Gaia
@@ -37,38 +24,25 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
     if survey.lower() == 'gaia':
         if target:
             print(f"[Ashtrobinge] Binging Gaia stars around '{target}' (radius: {radius} deg)...")
+            # Always resolve target to SkyCoord
             coord = SkyCoord.from_name(target)
-            job = Gaia.cone_search_async(coord, radius * u.deg)
-            result = job.get_results()
-            print(f"[Ashtrobinge] Downloaded {len(result)} stars near {target}. Data secured.")
-            return result
         elif coords:
             ra, dec = coords
             coord = SkyCoord(ra, dec, unit='deg')
             print(f"[Ashtrobinge] Binging Gaia stars at RA={ra}, Dec={dec} (radius: {radius} deg)...")
-            job = Gaia.cone_search_async(coord, radius * u.deg)
-            result = job.get_results()
-            print(f"[Ashtrobinge] Downloaded {len(result)} stars at coordinates. Data secured.")
-            return result
         else:
             print("Please provide a target name or coordinates.")
             return None
+
+        job = Gaia.cone_search_async(coord, radius * u.deg)
+        result = job.get_results()
+        print(f"[Ashtrobinge] Downloaded {len(result)} stars. Data secured.")
+        return result
     else:
         print("Currently only Gaia is supported in this demo.")
         return None
 
 def clean(data, dropna=True):
-    """
-    Clean an astropy Table or pandas DataFrame.
-    - Drops rows with NaNs if dropna is True.
-
-    Parameters:
-        data: astropy Table or pandas DataFrame
-        dropna (bool): Whether to drop NaN rows
-
-    Returns:
-        pandas DataFrame: Cleaned data
-    """
     try:
         import pandas as pd
     except ImportError:
@@ -89,15 +63,6 @@ def clean(data, dropna=True):
     return df
 
 def plot(plot_type, data, x=None, y=None):
-    """
-    Plot astronomical data.
-
-    Parameters:
-        plot_type (str): 'cmd' for color-magnitude, 'scatter' for generic
-        data: pandas DataFrame
-        x (str, optional): Column name for x-axis (for scatter)
-        y (str, optional): Column name for y-axis (for scatter)
-    """
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -128,9 +93,6 @@ def plot(plot_type, data, x=None, y=None):
         print("Plot type not recognized or insufficient data/arguments.")
 
 def meme_log(level='info'):
-    """
-    Print a random meme log for fun.
-    """
     import random
     messages = {
         'info': [
