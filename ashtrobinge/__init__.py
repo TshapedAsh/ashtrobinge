@@ -11,12 +11,11 @@ def hello_binge():
 
 def download(survey='Gaia', target=None, coords=None, radius=1.0):
     """
-    Download data from Gaia using astroquery (latest version!).
+    Download data from Gaia using astroquery (universal version).
     """
     try:
         from astroquery.gaia import Gaia
         from astropy.coordinates import SkyCoord
-        import astropy.units as u
     except ImportError:
         print("astroquery/astropy not installed. Please pip install astroquery astropy.")
         return None
@@ -25,22 +24,24 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
         if target:
             print(f"[Ashtrobinge] Binging Gaia stars around '{target}' (radius: {radius} deg)...")
             coord = SkyCoord.from_name(target)
+            coord_string = f"{coord.ra.deg} {coord.dec.deg}"
         elif coords:
             ra, dec = coords
-            coord = SkyCoord(ra, dec, unit='deg')
+            coord_string = f"{ra} {dec}"
             print(f"[Ashtrobinge] Binging Gaia stars at RA={ra}, Dec={dec} (radius: {radius} deg)...")
         else:
             print("Please provide a target name or coordinates.")
             return None
 
-        # THE FIXED CALL FOR NEW ASTROQUERY:
-        job = Gaia.cone_search_async(coord, radius * u.deg)
+        job = Gaia.cone_search_async(coord_string, radius)
         result = job.get_results()
         print(f"[Ashtrobinge] Downloaded {len(result)} stars. Data secured.")
         return result
     else:
         print("Currently only Gaia is supported in this demo.")
         return None
+
+# --- Rest of your code (clean, plot, meme_log) unchanged! ---
 
 def clean(data, dropna=True):
     try:
