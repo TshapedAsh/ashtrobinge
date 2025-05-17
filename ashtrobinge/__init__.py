@@ -11,7 +11,7 @@ def hello_binge():
 
 def download(survey='Gaia', target=None, coords=None, radius=1.0):
     """
-    Download data from Gaia using astroquery (universal version).
+    Download data from Gaia using astroquery (works everywhere).
     """
     try:
         from astroquery.gaia import Gaia
@@ -24,6 +24,7 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
         if target:
             print(f"[Ashtrobinge] Binging Gaia stars around '{target}' (radius: {radius} deg)...")
             coord = SkyCoord.from_name(target)
+            # Convert SkyCoord to string for astroquery
             coord_string = f"{coord.ra.deg} {coord.dec.deg}"
         elif coords:
             ra, dec = coords
@@ -33,6 +34,7 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
             print("Please provide a target name or coordinates.")
             return None
 
+        # Use string and float, NOT SkyCoord or Quantity, for max compatibility
         job = Gaia.cone_search_async(coord_string, radius)
         result = job.get_results()
         print(f"[Ashtrobinge] Downloaded {len(result)} stars. Data secured.")
@@ -40,6 +42,7 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
     else:
         print("Currently only Gaia is supported in this demo.")
         return None
+
 
 # --- Rest of your code (clean, plot, meme_log) unchanged! ---
 
