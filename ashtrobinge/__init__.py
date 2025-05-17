@@ -7,10 +7,24 @@ __version__ = "0.1.0"
 __author__ = "Ash"
 
 def hello_binge():
+    """
+    Print a meme-powered welcome message.
+    """
     print("🚀 Welcome to Ashtrobinge! Ready to binge the cosmos and roast your data? Let’s goon.")
 
-# Download function (real or placeholder)
 def download(survey='Gaia', target=None, coords=None, radius=1.0):
+    """
+    Download data from a specified astronomical survey.
+
+    Parameters:
+        survey (str): Survey name (currently only 'Gaia' supported)
+        target (str, optional): Object name (e.g., 'M31')
+        coords (tuple, optional): (RA, Dec) in degrees
+        radius (float): Search radius in degrees
+
+    Returns:
+        astropy Table: Result of the query (or None if error)
+    """
     try:
         from astroquery.gaia import Gaia
     except ImportError:
@@ -39,6 +53,17 @@ def download(survey='Gaia', target=None, coords=None, radius=1.0):
         return None
 
 def clean(data, dropna=True):
+    """
+    Clean an astropy Table or pandas DataFrame.
+    - Drops rows with NaNs if dropna is True.
+
+    Parameters:
+        data: astropy Table or pandas DataFrame
+        dropna (bool): Whether to drop NaN rows
+
+    Returns:
+        pandas DataFrame: Cleaned data
+    """
     try:
         import pandas as pd
     except ImportError:
@@ -59,6 +84,15 @@ def clean(data, dropna=True):
     return df
 
 def plot(plot_type, data, x=None, y=None):
+    """
+    Plot astronomical data.
+
+    Parameters:
+        plot_type (str): 'cmd' for color-magnitude, 'scatter' for generic
+        data: pandas DataFrame
+        x (str, optional): Column name for x-axis (for scatter)
+        y (str, optional): Column name for y-axis (for scatter)
+    """
     try:
         import matplotlib.pyplot as plt
     except ImportError:
@@ -67,6 +101,7 @@ def plot(plot_type, data, x=None, y=None):
 
     if plot_type.lower() == 'cmd':
         if 'bp_rp' in data and 'phot_g_mean_mag' in data:
+            print("[Ashtrobinge] Plotting your CMD... Art, but make it science.")
             plt.figure(figsize=(6,8))
             plt.scatter(data['bp_rp'], data['phot_g_mean_mag'], s=1, alpha=0.5, color='blue')
             plt.gca().invert_yaxis()
@@ -77,6 +112,7 @@ def plot(plot_type, data, x=None, y=None):
         else:
             print("Data must have 'bp_rp' and 'phot_g_mean_mag' columns for CMD.")
     elif plot_type.lower() == 'scatter' and x and y:
+        print(f"[Ashtrobinge] Plotting scatter: {x} vs {y}. Yeet those points!")
         plt.figure(figsize=(6,4))
         plt.scatter(data[x], data[y], s=5, alpha=0.6, color='navy')
         plt.xlabel(x)
@@ -87,6 +123,9 @@ def plot(plot_type, data, x=None, y=None):
         print("Plot type not recognized or insufficient data/arguments.")
 
 def meme_log(level='info'):
+    """
+    Print a random meme log for fun.
+    """
     import random
     messages = {
         'info': [
@@ -109,4 +148,3 @@ def meme_log(level='info'):
         ]
     }
     print(random.choice(messages.get(level, messages['info'])))
-
